@@ -1,0 +1,3 @@
+ezkl
+reactpy[fastapi]
+tornado==5.0
