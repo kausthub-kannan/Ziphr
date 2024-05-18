@@ -1,5 +1,8 @@
-zkml_middleware/inputs
-zkml_middleware/outputs
+zkml/setup/inputs
+zkml/setup/outputs
 .idea
 __pycache__/
 poetry.lock
+zkml/prover/proof.json
+zkml/prover/witness.json
+zkml/verifier/client_proof.json

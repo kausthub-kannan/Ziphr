@@ -1,30 +1,50 @@
+import asyncio
+import json
+import logging
+
 import streamlit as st
 from utils import run_async
 import warnings
+import requests
 
-from zkml_middleware.prover import Prover
-from zkml_middleware.verifier import Verifier
+from zkml.prover.prover import Prover
+from zkml.verifier.verifier import Verifier
 
-warnings.filterwarnings("ignore", message="RuntimeWarning: Enable tracemalloc to get the object allocation traceback")
 
-st.set_page_config("Ziphr")
-st.title("Ziphr")
-st.markdown("")
+async def main():
+    warnings.filterwarnings("ignore",
+                            message="RuntimeWarning: Enable tracemalloc to get the object allocation traceback")
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
 
-if st.button("Prove Model"):
-    try:
-        print("INFO | ZKML Authentication Started")
-        prover = Prover()
-        proof = run_async(prover.generate_proof())
-        print("INFO | ZK Proof Generated \n")
-        print("INFO | ZK Verification started...")
-        verifier = Verifier(
-            prover.settings_path,
-            prover.vk_path,
-            prover.proof_path
-        )
-        verification = run_async(verifier.verify())
-        if verification:
-            st.write("The model is verified")
-    except Exception as e:
-        print("ERROR | SETUP FAILED | " + str(e))
+    st.set_page_config("Ziphr")
+    st.title("Ziphr")
+    st.markdown("")
+
+    if st.button("Prove Model"):
+        try:
+            prover = Prover()
+            proof = await prover.generate_proof()
+            if 'status' not in proof.keys():
+
+                with open(prover.proof_path, 'r') as f:
+                    proof_data = json.load(f)
+
+                data = json.dumps(proof_data)
+
+                verification_status = requests.post("http://127.0.0.1:8000/verify", data=data).json()
+                logger.info(verification_status['message'])
+                st.write(verification_status['message'])
+
+            else:
+                error_msg = proof["message"]
+                logger.error(f"ZK Proof Generation Failed | {error_msg}")
+
+        except Exception as e:
+            logger.error(f"ZK Proof Generation or Verification Failed | {str(e)}")
+            logger.error("ERROR | SETUP FAILED | " + str(e))
+
+
+if __name__ == '__main__':
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(main())

@@ -1,6 +1,8 @@
 import ezkl
 import os
 
+from utils import run_async
+
 
 class ZZK:
     def __init__(self):
@@ -18,17 +20,15 @@ class ZZK:
         """
         # Required Inputs
 
-        self.model_path = os.path.join("zkml_middleware/inputs/network.onnx")
-        self.data_path = os.path.join('zkml_middleware/inputs/input.json')
-        self.calibration_path = os.path.join('zkml_middleware/inputs/calibration.json')
+        self.model_path = os.path.join("inputs/network.onnx")
+        self.data_path = os.path.join('inputs/input.json')
+        self.calibration_path = os.path.join('inputs/calibration.json')
 
         # ZKML Middleware Components
-        self.compiled_model_path = os.path.join('zkml_middleware/outputs/network.ezkl')
-        self.settings_path = os.path.join('zkml_middleware/outputs/settings.json')
-        self.pk_path = os.path.join('zkml_middleware/outputs/test.pk')
-        self.vk_path = os.path.join('zkml_middleware/outputs/test.vk')
-        self.witness_path = os.path.join('zkml_middleware/outputs/witness.json')
-        self.proof_path = os.path.join('zkml_middleware/outputs/proof.json')
+        self.compiled_model_path = os.path.join('outputs/network.ezkl')
+        self.settings_path = os.path.join('outputs/settings.json')
+        self.pk_path = os.path.join('outputs/test.pk')
+        self.vk_path = os.path.join('outputs/test.vk')
 
     @staticmethod
     def set_visibility(input_visibility="private", weights_visibility="fixed", output_visibility="public"):
@@ -47,3 +47,8 @@ class ZZK:
             self.vk_path,
             self.pk_path,
         )
+
+
+if __name__ == '__main__':
+    setup = ZZK()
+    run_async(setup.compile_model())
