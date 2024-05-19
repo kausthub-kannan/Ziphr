@@ -1,8 +1,6 @@
 import ezkl
 import os
 
-from utils import run_async
-
 
 class ZZK:
     def __init__(self):

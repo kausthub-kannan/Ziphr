@@ -3,7 +3,6 @@ import json
 import logging
 
 import streamlit as st
-from utils import run_async
 import warnings
 import requests
 
