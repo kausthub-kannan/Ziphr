@@ -15,16 +15,19 @@ class Verifier:
         self.proof_path = os.path.join(proof_path)
 
     def verify(self):
-        logger.info("ZK Verification started...")
-        if ezkl.verify(
-                self.proof_path,
-                self.settings_path,
-                self.vk_path,
-        ):
-            logger.info("Model has been verified")
-            return {"status": 200, "message": "Model has been verified"}
-        else:
-            logger.info("Access Denied")
+        try:
+            logger.info("ZK Verification started...")
+            if ezkl.verify(
+                    self.proof_path,
+                    self.settings_path,
+                    self.vk_path,
+            ):
+                logger.info("Model has been verified")
+                return {"status": 200, "message": "Model has been verified"}
+            else:
+                logger.info("Access Denied")
+                return {"status": 500, "message": "Access Denied"}
+        except Exception as e:
             return {"status": 500, "message": "Access Denied"}
 
 
@@ -39,10 +42,19 @@ def read_root():
 @app.post("/verify")
 async def verify(proof: Request):
     proof_js = await proof.json()
-    with open("client_proof.json", "w") as json_proof:
-        json.dump(proof_js, json_proof, ensure_ascii=False)
 
     verifier = Verifier("settings.json", "test.vk", "client_proof.json")
     vk_status = verifier.verify()
 
     return vk_status
+
+@app.post("/wrong_verify")
+async def wrong_verify(proof: Request):
+        proof_js = await proof.json()
+        with open("client_proof.json", "w") as json_proof:
+            json.dump(proof_js, json_proof, ensure_ascii=False)
+
+        verifier = Verifier("settings.json", "test.vk", "client_proof_wrong.json")
+        vk_status = verifier.verify()
+
+        return vk_status
