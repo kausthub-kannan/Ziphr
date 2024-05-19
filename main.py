@@ -17,7 +17,7 @@ def data_display(data):
     Sex:  {data["sex"]} \n
     Address: {data["address"]} \n
     Crime: {data["crime"]} \n
-    Arrest Date: {data["arrest_date"]} \n" 
+    Arrest Date: {data["arrest_date"]} \n
     """
     st.markdown(content)
 
@@ -62,16 +62,20 @@ async def main():
 
                 verification_status = requests.post("http://127.0.0.1:8000/verify", data=data).json()
                 logger.info(verification_status['message'])
-                data = {
-                    "message": verification_status['message'],
-                    "name": "John Doe",
-                    "sex": "Male",
-                    "age": "25",
-                    "arrest_date": "2021-09-01",
-                    "crime": "Theft",
-                    "address": "1234, Main Street, New York",
-                }
-                data_display(data)
+
+                if verification_status["status"]==200:
+                    data = {
+                        "message": verification_status['message'],
+                        "name": "John Doe",
+                        "sex": "Male",
+                        "age": "25",
+                        "arrest_date": "2021-09-01",
+                        "crime": "Theft",
+                        "address": "1234, Main Street, New York",
+                    }
+                    data_display(data)
+                else:
+                    access_denied_display()
 
             else:
                 error_msg = proof["message"]
